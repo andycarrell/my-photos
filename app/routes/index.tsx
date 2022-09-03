@@ -1,8 +1,25 @@
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+
 import { useOptionalUser } from "~/utils";
+
+type LoaderData = {
+  authorizationURL: string;
+};
+
+export const loader: LoaderFunction = () => {
+  const appClientId = process.env.APP_CLIENT_ID;
+  const authRedirectURI = process.env.AUTH_REDIRECT_URI;
+  const authorizationURL = `https://api.instagram.com/oauth/authorize?client_id=${appClientId}&redirect_uri=${authRedirectURI}&scope=user_profile,user_media&response_type=code`;
+
+  return json({ authorizationURL });
+};
 
 export default function Index() {
   const user = useOptionalUser();
+  const data = useLoaderData<typeof loader>() as LoaderData;
+
   return (
     <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
@@ -28,12 +45,12 @@ export default function Index() {
               </p>
               <div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
                 {user ? (
-                  <Link
-                    to="/notes"
+                  <a
+                    href={data.authorizationURL}
                     className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-violet-700 shadow-sm hover:bg-violet-50 sm:px-8"
                   >
-                    View Notes for {user.email}
-                  </Link>
+                    Get started
+                  </a>
                 ) : (
                   <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">
                     <Link

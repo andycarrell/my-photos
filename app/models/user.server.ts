@@ -1,8 +1,10 @@
-import bcrypt from "bcryptjs";
 import { createClient } from "@supabase/supabase-js";
 import invariant from "tiny-invariant";
 
-export type User = { id: string; email: string };
+export type User = {
+  id: string;
+  email: string;
+};
 
 // Abstract this away
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -20,15 +22,22 @@ invariant(
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function createUser(email: string, password: string) {
-  const { user } = await supabase.auth.signUp({
+  const { user, error } = await supabase.auth.signUp({
     email,
     password,
   });
 
-  // get the user profile after created
-  const profile = await getProfileByEmail(user?.email);
+  if (error) {
+    console.error(`Error: createUser, ${email}, ***`, error);
+    return null;
+  }
 
-  return profile;
+  // Invalid: supabase error querying profile immediately after creation
+  // get the user profile after created
+  // const profile = await getProfileByEmail(user?.email);
+  // return profile;
+
+  return user?.id;
 }
 
 export async function getProfileById(id: string) {
@@ -38,8 +47,16 @@ export async function getProfileById(id: string) {
     .eq("id", id)
     .single();
 
-  if (error) return null;
-  if (data) return { id: data.id, email: data.email };
+  if (error) {
+    console.error(`Error: getProfileById, ${id}`, error);
+    return null;
+  }
+
+  if (data) {
+    return { id: data.id, email: data.email };
+  }
+
+  return null;
 }
 
 export async function getProfileByEmail(email?: string) {
@@ -49,8 +66,16 @@ export async function getProfileByEmail(email?: string) {
     .eq("email", email)
     .single();
 
-  if (error) return null;
-  if (data) return data;
+  if (error) {
+    console.error(`Error: getProfileByEmail, ${email}`, error);
+    return null;
+  }
+
+  if (data) {
+    return data;
+  }
+
+  return null;
 }
 
 export async function verifyLogin(email: string, password: string) {
@@ -59,7 +84,11 @@ export async function verifyLogin(email: string, password: string) {
     password,
   });
 
-  if (error) return undefined;
+  if (error) {
+    console.error(`Error: verifyLogin, ${email}, ***`, error);
+    return undefined;
+  }
+
   const profile = await getProfileByEmail(user?.email);
 
   return profile;
