@@ -24,8 +24,8 @@
   [headers.values]
     "Cache-Control" = "public, max-age=31536000, s-maxage=31536000"
 
-[[plugins]]
-  package = "netlify-plugin-cypress"
-  [plugins.inputs]
-    record = true
-    group = "Testing Built Site"
+# [[plugins]]
+#   package = "netlify-plugin-cypress"
+#   [plugins.inputs]
+#     record = true
+#     group = "Testing Built Site"
