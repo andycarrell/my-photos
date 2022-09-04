@@ -12,26 +12,30 @@ export function useMatchesData(id: string) {
   return route?.data;
 }
 
-export function isUser(user: User) {
-  return user && typeof user === "object";
+export function isUser(user: unknown): user is User {
+  return Boolean(user) && typeof user === "object";
 }
 
 export function useOptionalUser() {
   const data = useMatchesData("root");
-  if (!data || !isUser(data.user)) {
-    return undefined;
+
+  if (data && isUser(data.user)) {
+    return data.user;
   }
-  return data.user;
+
+  return undefined;
 }
 
 export function useUser() {
   const maybeUser = useOptionalUser();
-  if (!maybeUser) {
-    throw new Error(
-      "No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead."
-    );
+
+  if (maybeUser) {
+    return maybeUser;
   }
-  return maybeUser;
+
+  throw new Error(
+    "No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead."
+  );
 }
 
 export function validateEmail(email: unknown): email is string {
