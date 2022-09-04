@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+
 import { json, redirect } from "@remix-run/node";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
 
 import { getTokenByUserId } from "~/models/token.server";
@@ -20,11 +21,7 @@ type LoaderData = {
   after: string | null;
 };
 
-export async function loader({ request }: LoaderArgs) {
-  const appClientId = process.env.APP_CLIENT_ID;
-  const authRedirectURI = process.env.AUTH_REDIRECT_URI;
-  const tokenAuthorizationURL = `https://api.instagram.com/oauth/authorize?client_id=${appClientId}&redirect_uri=${authRedirectURI}&scope=user_profile,user_media&response_type=code`;
-
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const after = url.searchParams.get("after");
 
@@ -32,7 +29,7 @@ export async function loader({ request }: LoaderArgs) {
   const token = await getTokenByUserId({ userId });
 
   if (!token) {
-    return redirect(tokenAuthorizationURL);
+    return redirect("/fb-app/authorize");
   }
 
   const params = new URLSearchParams({
@@ -63,13 +60,13 @@ export async function loader({ request }: LoaderArgs) {
     (!error?.code && error?.type === "OAuthException");
 
   if (isTokenInvalid) {
-    return redirect(tokenAuthorizationURL);
+    return redirect("/fb-app/authorize");
   }
 
   return json(`Exception: could not fetch media for user, ${userId}`, {
     status: 500,
   });
-}
+};
 
 function Header() {
   const user = useUser();
