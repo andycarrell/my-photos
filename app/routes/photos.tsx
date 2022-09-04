@@ -48,8 +48,6 @@ export async function loader({ request }: LoaderArgs) {
 
   const { data: media, paging, error } = await response.json();
 
-  console.log({ data: media, paging, error });
-
   if (response.ok) {
     return json({
       // Explicitly ignore video for now
@@ -135,14 +133,16 @@ export default function PhotosPage() {
   return (
     <div className="flex h-full min-h-screen flex-col items-center">
       <Header />
-      <div className="grid grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-6">
-        {data.media.map(({ media_url: url, caption }) => (
-          <img
-            src={url}
-            key={url}
-            alt={caption}
-            className="aspect-square h-full w-full rounded-md"
-          />
+      <div className="grid auto-rows-fr grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-6">
+        {data.media.map(({ id, media_url: url, caption }) => (
+          <div className="aspect-square h-full w-full" key={id}>
+            <img
+              src={url}
+              key={url}
+              alt={caption}
+              className="h-full w-full rounded-md object-cover"
+            />
+          </div>
         ))}
       </div>
       {data.after ? (
