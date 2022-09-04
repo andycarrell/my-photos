@@ -58,5 +58,5 @@ export const loader: LoaderFunction = async ({ request }) => {
     user_id: token.user_id,
   });
 
-  return redirect("/my-photos");
+  return redirect("/photos");
 };
