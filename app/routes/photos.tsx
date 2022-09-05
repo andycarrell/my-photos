@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 
 import { json, redirect } from "@remix-run/node";
 import type { LoaderFunction } from "@remix-run/node";
-import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useCatch,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react";
 
 import { getTokenByUserId } from "~/models/token.server";
 import { requireUserId } from "~/session.server";
@@ -119,13 +125,14 @@ function LoadMoreButton({ disabled }: { disabled: boolean }) {
   );
 }
 
-export function ErrorBoundary() {
+export function CatchBoundary() {
+  const caught = useCatch();
   return (
     <div className="flex h-full min-h-screen flex-col items-center">
       <Header />
       <div className="mt-32 flex flex-col items-center space-y-4">
         <h2 className="text-3xl">Something went wrong</h2>
-        <p>Please contact support</p>
+        <p>Please contact support, code: {caught.status}</p>
       </div>
     </div>
   );
