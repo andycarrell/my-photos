@@ -53,17 +53,31 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
+  console.error(`Exception: could not fetch media for user, ${userId}`, error);
+
   // https://developers.facebook.com/docs/graph-api/guides/error-handling/
   const isTokenInvalid =
+    error?.code === 102 ||
     error?.code === 190 ||
-    error?.code == 102 ||
     (!error?.code && error?.type === "OAuthException");
 
   if (isTokenInvalid) {
     return redirect("/fb-app/authorize");
   }
 
-  return json(`Exception: could not fetch media for user, ${userId}`, {
+  // https://developers.facebook.com/docs/instagram-basic-display-api/reference/error-codes/
+  if (
+    error?.code === 100 &&
+    error?.error_subcode === 33 &&
+    error?.type === "IGApiException"
+  ) {
+    throw json(
+      `Exception: could not fetch media for user, ${userId}. ${error?.message}`,
+      { status: 400 }
+    );
+  }
+
+  throw json(`Exception: could not fetch media for user, ${userId}`, {
     status: 500,
   });
 };
@@ -102,6 +116,18 @@ function LoadMoreButton({ disabled }: { disabled: boolean }) {
     >
       Load more
     </button>
+  );
+}
+
+export function ErrorBoundary() {
+  return (
+    <div className="flex h-full min-h-screen flex-col items-center">
+      <Header />
+      <div className="mt-32 flex flex-col items-center space-y-4">
+        <h2 className="text-3xl">Something went wrong</h2>
+        <p>Please contact support</p>
+      </div>
+    </div>
   );
 }
 
