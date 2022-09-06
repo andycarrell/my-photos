@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 
-import { json, redirect } from "@remix-run/node";
-import type { LoaderFunction } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -9,6 +7,8 @@ import {
   useFetcher,
   useLoaderData,
 } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 
 import { getTokenByUserId } from "~/models/token.server";
 import { requireUserId } from "~/session.server";
@@ -46,7 +46,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 
   const response = await fetch(
-    `https://graph.instagram.com/v14.0/${token.userId}/media?${params}`
+    `https://graph.instagram.com/v14.0/me/media?${params}`
   );
 
   const { data: media, paging, error } = await response.json();

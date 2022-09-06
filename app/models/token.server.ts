@@ -1,18 +1,18 @@
-import type { User } from "./user.server";
+import type { User as Profile } from "./user.server";
 import { supabase } from "./user.server";
 
 export type Token = {
   id: string;
   user_id: string;
   access_token: string;
-  profile_id: User["id"];
+  profile_id: Profile["id"];
 };
 
 export async function saveToken({
   profileId,
   user_id: userId,
   access_token: accessToken,
-}: Pick<Token, "access_token" | "user_id"> & { profileId: User["id"] }) {
+}: Pick<Token, "access_token" | "user_id"> & { profileId: Profile["id"] }) {
   const { data, error } = await supabase
     .from("tokens")
     .upsert(
@@ -33,7 +33,7 @@ export async function saveToken({
   return data;
 }
 
-export async function getTokenByUserId({ userId }: { userId: User["id"] }) {
+export async function getTokenByUserId({ userId }: { userId: Profile["id"] }) {
   const { data, error } = await supabase
     .from("tokens")
     .select("*")

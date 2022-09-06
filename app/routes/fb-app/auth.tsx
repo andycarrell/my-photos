@@ -33,23 +33,26 @@ export const loader: LoaderFunction = async ({ request }) => {
     return json("Exception: You must provide a valid 'code'", { status: 400 });
   }
 
-  const res = await fetch("https://api.instagram.com/oauth/access_token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: String(
-      new URLSearchParams({
-        code,
-        client_id: appClientId,
-        client_secret: appClientSecret,
-        redirect_uri: authRedirectURI,
-        grant_type: "authorization_code",
-      })
-    ),
-  });
+  const tokenResponse = await fetch(
+    "https://api.instagram.com/oauth/access_token",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: String(
+        new URLSearchParams({
+          code,
+          client_id: appClientId,
+          client_secret: appClientSecret,
+          redirect_uri: authRedirectURI,
+          grant_type: "authorization_code",
+        })
+      ),
+    }
+  );
 
-  const token = await res.json();
+  const token = await tokenResponse.json();
 
   await saveToken({
     profileId: userId,
