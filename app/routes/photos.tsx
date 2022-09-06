@@ -42,7 +42,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     access_token: token.accessToken,
     fields: "media_type,media_url,id,timestamp,caption",
     after: after ?? "",
-    limit: "50",
+    limit: "48",
   });
 
   const response = await fetch(
@@ -163,13 +163,14 @@ export default function PhotosPage() {
   return (
     <div className="flex h-full min-h-screen flex-col items-center">
       <Header />
-      <div className="grid auto-rows-fr grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-6">
+      <div className="grid w-full auto-rows-fr grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-6">
         {data.media.map(({ id, media_url: url, caption }) => (
           <div className="aspect-square h-full w-full" key={id}>
             <img
               src={url}
               key={url}
               alt={caption}
+              loading="lazy"
               className="h-full w-full rounded-md object-cover"
             />
           </div>
