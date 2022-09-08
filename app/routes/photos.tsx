@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import type { ReactNode } from "react";
 
 import {
@@ -157,6 +157,7 @@ function DownloadMedia({
   children: ReactNode;
 }) {
   const [href, setHref] = useState(media.media_url);
+  const [isLoaded, setIsLoaded] = useReducer(() => true, false);
 
   const fetchHref = async () => {
     try {
@@ -173,6 +174,7 @@ function DownloadMedia({
   return (
     <a
       href={href}
+      onLoad={setIsLoaded}
       onMouseEnter={fetchHref}
       onTouchStart={fetchHref}
       download={`${media.id}.png`}
@@ -180,6 +182,7 @@ function DownloadMedia({
       className={[
         "group relative aspect-square h-full w-full overflow-hidden rounded-md",
         "cursor-pointer",
+        isLoaded ? "" : "lg:after:hidden",
         "lg:after:absolute lg:after:inset-0 lg:after:z-10 lg:after:block",
         "lg:after:bg-transparent lg:hover:after:bg-gray-900/50",
         "lg:after:transition-colors lg:after:duration-300",
@@ -188,6 +191,7 @@ function DownloadMedia({
       {children}
       <DownloadIcon
         className={[
+          isLoaded ? "" : "hidden",
           "absolute z-20 h-8 w-8 ",
           "text-transparent lg:group-hover:text-white/90",
           "lg:transition-colors lg:duration-300",
