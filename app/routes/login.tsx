@@ -1,9 +1,11 @@
-import React from "react";
-import type { ActionFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
+import { useRef, useEffect } from "react";
+
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import { verifyLogin } from "~/models/user.server";
+import type { ActionFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
+
 import { createUserSession, getUserId } from "~/session.server";
+import { verifyLogin } from "~/models/user.server";
 import { validateEmail } from "~/utils";
 
 export const meta: MetaFunction = () => {
@@ -72,15 +74,13 @@ export default function Login() {
   const redirectTo = searchParams.get("redirectTo") ?? "/photos";
 
   const actionData = useActionData() as ActionData;
-  const emailRef = React.useRef<HTMLInputElement>(null);
-  const passwordRef = React.useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionData?.errors?.email) {
       emailRef?.current?.focus();
-    }
-
-    if (actionData?.errors?.password) {
+    } else if (actionData?.errors?.password) {
       passwordRef?.current?.focus();
     }
   }, [actionData]);
@@ -88,58 +88,65 @@ export default function Login() {
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
-        <Form method="post" className="space-y-6" noValidate>
-          <div>
-            <label className="text-sm font-medium" htmlFor="email">
-              <span className="block text-gray-700">Email Address</span>
-              {actionData?.errors?.email && (
-                <span className="block pt-1 text-red-700" id="email-error">
+        <Form method="post" noValidate>
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <div className="space-y-2">
+            <div>
+              <label className="text-sm font-medium" htmlFor="email">
+                <span className="block text-gray-700">Email Address</span>
+              </label>
+              <input
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                autoComplete="email"
+                type="email"
+                name="email"
+                id="email"
+                aria-invalid={actionData?.errors?.email ? true : undefined}
+                aria-describedby="email-error"
+                ref={emailRef}
+              />
+              {actionData?.errors?.email ? (
+                <div className="pt-1 text-red-700" id="email-error">
                   {actionData?.errors?.email}
-                </span>
+                </div>
+              ) : (
+                <div role="presentation" className="h-7" />
               )}
-            </label>
-            <input
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-              autoComplete="email"
-              type="email"
-              name="email"
-              id="email"
-              aria-invalid={actionData?.errors?.email ? true : undefined}
-              aria-describedby="email-error"
-              ref={emailRef}
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium" htmlFor="password">
-              <span className="block text-gray-700">Password</span>
-              <span className="block font-light text-gray-700">
-                Must have at least 6 characters.
-              </span>
-              {actionData?.errors?.password && (
-                <span className="pt-1 text-red-700" id="password-error">
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="password">
+                <span className="block text-gray-700">Password</span>
+                <span className="block font-light text-gray-700">
+                  Must have at least 6 characters.
+                </span>
+              </label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                autoComplete=""
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                aria-invalid={actionData?.errors?.password ? true : undefined}
+                aria-describedby="password-error"
+                ref={passwordRef}
+              />
+              {actionData?.errors?.password ? (
+                <div className="pt-1 text-red-700" id="password-error">
                   {actionData?.errors?.password}
-                </span>
+                </div>
+              ) : (
+                <div role="presentation" className="h-7" />
               )}
-            </label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              autoComplete=""
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-              aria-invalid={actionData?.errors?.password ? true : undefined}
-              aria-describedby="password-error"
-              ref={passwordRef}
-            />
+            </div>
           </div>
+
           <button
-            className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+            className="mt-5 mb-4 w-full rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
             type="submit"
           >
             Log in
           </button>
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-          <div className="flex items-center justify-between">
+          <div className="grid grid-flow-row items-center gap-6 sm:grid-flow-col">
             <div className="flex items-center">
               <input
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
