@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 
 import {
   Form,
@@ -8,7 +9,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 
 import { getTokenByUserId } from "~/models/token.server";
 import { requireUserId } from "~/session.server";
@@ -25,6 +26,12 @@ type Media = {
 type LoaderData = {
   media: Media[];
   after: string | null;
+};
+
+export const meta: MetaFunction = () => {
+  return {
+    title: "Photos",
+  };
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -127,6 +134,70 @@ function LoadMoreButton({ disabled }: { disabled: boolean }) {
   );
 }
 
+function DownloadIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      role="presentation"
+      className={className}
+    >
+      <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+      <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+    </svg>
+  );
+}
+
+function DownloadMedia({
+  media,
+  children,
+}: {
+  media: Media;
+  children: ReactNode;
+}) {
+  const [href, setHref] = useState(media.media_url);
+
+  const fetchHref = async () => {
+    try {
+      const image = await fetch(media.media_url);
+      const imageBlob = await image.blob();
+      const imagePNG = new Blob([imageBlob], { type: "image/png" });
+      const imageURL = URL.createObjectURL(imagePNG);
+      setHref(imageURL);
+    } catch (e: unknown) {
+      console.error("Exception: could not fetch href for media", e);
+    }
+  };
+
+  return (
+    <a
+      href={href}
+      onMouseEnter={fetchHref}
+      onTouchStart={fetchHref}
+      download={`${media.id}.png`}
+      aria-label={`Download ${media.id}`}
+      className={[
+        "group relative aspect-square h-full w-full overflow-hidden rounded-md",
+        "cursor-pointer",
+        "lg:after:absolute lg:after:inset-0 lg:after:z-10 lg:after:block",
+        "lg:after:bg-transparent lg:hover:after:bg-gray-900/50",
+        "lg:after:transition-colors lg:after:duration-300",
+      ].join(" ")}
+    >
+      {children}
+      <DownloadIcon
+        className={[
+          "absolute z-20 h-8 w-8 ",
+          "text-transparent lg:group-hover:text-white/90",
+          "lg:transition-colors lg:duration-300",
+          "inset-1/2 -translate-x-1/2 -translate-y-1/2", // <- center
+        ].join(" ")}
+      />
+    </a>
+  );
+}
+
 export function CatchBoundary() {
   const caught = useCatch();
   return (
@@ -166,15 +237,15 @@ export default function PhotosPage() {
     <div className="flex h-full min-h-screen flex-col items-center">
       <Header />
       <div className="grid w-full auto-rows-fr grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-6">
-        {data.media.map(({ id, media_url: url, caption }) => (
-          <div className="aspect-square h-full w-full" key={id}>
+        {data.media.map((media) => (
+          <DownloadMedia key={media.id} media={media}>
             <img
-              src={url}
-              alt={caption}
               loading="lazy"
-              className="h-full w-full rounded-md object-cover"
+              alt={media.caption}
+              src={media.media_url}
+              className="h-full w-full object-cover"
             />
-          </div>
+          </DownloadMedia>
         ))}
       </div>
       {data.after ? (
