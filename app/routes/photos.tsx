@@ -92,10 +92,12 @@ function Header() {
   const user = useUser();
   return (
     <header className="flex w-full items-center justify-between bg-slate-800 p-4 text-white">
-      <h1 className="text-3xl font-bold">
-        <Link to=".">Photos</Link>
-      </h1>
-      <p>{user.email}</p>
+      <div className="grid grid-flow-row items-center sm:grid-flow-col sm:gap-8">
+        <h1 className="text-2xl font-bold sm:text-3xl">
+          <Link to=".">Photos</Link>
+        </h1>
+        <p className="text-sm sm:text-lg">{user.email}</p>
+      </div>
       <Form action="/logout" method="post">
         <button
           type="submit"
@@ -168,7 +170,6 @@ export default function PhotosPage() {
           <div className="aspect-square h-full w-full" key={id}>
             <img
               src={url}
-              key={url}
               alt={caption}
               loading="lazy"
               className="h-full w-full rounded-md object-cover"
