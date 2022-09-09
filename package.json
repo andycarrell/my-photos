@@ -11,6 +11,7 @@
     "dev": "run-p dev:*",
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "remix dev",
+    "dev:types": "npm run types:check -- --watch",
     "e2e-test": "cypress run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
