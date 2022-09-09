@@ -33,6 +33,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     return json("Exception: You must provide a valid 'code'", { status: 400 });
   }
 
+  // 'consume' code
+  url.searchParams.get("code");
+
   const tokenResponse = await fetch(
     "https://api.instagram.com/oauth/access_token",
     {

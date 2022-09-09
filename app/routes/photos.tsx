@@ -1,5 +1,4 @@
 import { useState, useEffect, useReducer } from "react";
-import type { ReactNode } from "react";
 
 import {
   Form,
@@ -149,13 +148,7 @@ function DownloadIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function DownloadMedia({
-  media,
-  children,
-}: {
-  media: Media;
-  children: ReactNode;
-}) {
+function DownloadMedia({ media }: { media: Media }) {
   const [href, setHref] = useState(media.media_url);
   const [isLoaded, setIsLoaded] = useReducer(() => true, false);
 
@@ -174,7 +167,6 @@ function DownloadMedia({
   return (
     <a
       href={href}
-      onLoad={setIsLoaded}
       onMouseEnter={fetchHref}
       onTouchStart={fetchHref}
       download={`${media.id}.png`}
@@ -188,7 +180,13 @@ function DownloadMedia({
         "lg:after:transition-colors lg:after:duration-300",
       ].join(" ")}
     >
-      {children}
+      <img
+        loading="lazy"
+        alt={media.caption}
+        src={media.media_url}
+        onLoad={setIsLoaded}
+        className="h-full w-full object-cover"
+      />
       <DownloadIcon
         className={[
           isLoaded ? "" : "hidden",
@@ -220,6 +218,17 @@ export default function PhotosPage() {
   const [data, setData] = useState(initialData);
   const fetcher = useFetcher();
 
+  // consume 'hash'
+  useEffect(() => {
+    if ("replaceState" in history) {
+      const [withoutHash, hash] = window.location.href.split("#");
+
+      if (hash === "_") {
+        history.replaceState("", document.title, withoutHash);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (fetcher.data) {
       setData((previous) => ({
@@ -229,36 +238,29 @@ export default function PhotosPage() {
     }
   }, [fetcher.data]);
 
-  if (!data.media) {
+  if (data.media?.length) {
     return (
-      <div className="flex h-full min-h-screen flex-col">
+      <div className="flex h-full min-h-screen flex-col items-center">
         <Header />
+        <div className="grid w-full auto-rows-fr grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-6">
+          {data.media.map((media) => (
+            <DownloadMedia key={media.id} media={media} />
+          ))}
+        </div>
+        {data.after ? (
+          <div className="w-full p-4 md:w-64">
+            <fetcher.Form method="get" action={`?after=${data.after}`}>
+              <LoadMoreButton disabled={fetcher.state !== "idle"} />
+            </fetcher.Form>
+          </div>
+        ) : null}
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-screen flex-col items-center">
+    <div className="flex h-full min-h-screen flex-col">
       <Header />
-      <div className="grid w-full auto-rows-fr grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-6">
-        {data.media.map((media) => (
-          <DownloadMedia key={media.id} media={media}>
-            <img
-              loading="lazy"
-              alt={media.caption}
-              src={media.media_url}
-              className="h-full w-full object-cover"
-            />
-          </DownloadMedia>
-        ))}
-      </div>
-      {data.after ? (
-        <div className="w-full p-4 md:w-64">
-          <fetcher.Form method="get" action={`?after=${data.after}`}>
-            <LoadMoreButton disabled={fetcher.state !== "idle"} />
-          </fetcher.Form>
-        </div>
-      ) : null}
     </div>
   );
 }
