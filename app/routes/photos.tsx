@@ -97,7 +97,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 function Header() {
   const user = useUser();
   return (
-    <header className="flex w-full items-center justify-between bg-slate-800 p-4 text-white">
+    <header className="flex w-full items-center justify-between bg-violet-700 p-4 text-white">
       <div className="grid grid-flow-row items-center sm:grid-flow-col sm:gap-8">
         <h1 className="text-2xl font-bold sm:text-3xl">
           <Link to=".">Photos</Link>
@@ -107,7 +107,7 @@ function Header() {
       <Form action="/logout" method="post">
         <button
           type="submit"
-          className="rounded bg-slate-600 py-2 px-4 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
+          className="rounded bg-white px-4 py-2 text-base font-medium text-violet-700 shadow-sm hover:bg-violet-100 hover:text-violet-900 active:bg-violet-100"
         >
           Logout
         </button>
