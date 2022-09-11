@@ -34,7 +34,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   // 'consume' code
-  url.searchParams.get("code");
+  url.searchParams.delete("code");
 
   const tokenResponse = await fetch(
     "https://api.instagram.com/oauth/access_token",
