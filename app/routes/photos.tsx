@@ -1,4 +1,5 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, useCallback } from "react";
+import type { SyntheticEvent } from "react";
 
 import {
   Form,
@@ -152,6 +153,12 @@ function DownloadMedia({ media }: { media: Media }) {
   const [href, setHref] = useState(media.media_url);
   const [isLoaded, setIsLoaded] = useReducer(() => true, false);
 
+  const handleLoad = useCallback((node: HTMLImageElement) => {
+    if ((node.complete, node.naturalHeight)) {
+      setIsLoaded();
+    }
+  }, []);
+
   const fetchHref = async () => {
     try {
       const image = await fetch(media.media_url);
@@ -184,8 +191,11 @@ function DownloadMedia({ media }: { media: Media }) {
         loading="lazy"
         alt={media.caption}
         src={media.media_url}
-        onLoad={setIsLoaded}
         className="h-full w-full object-cover"
+        ref={handleLoad}
+        onLoad={(e: SyntheticEvent<HTMLImageElement, Event>) => {
+          handleLoad(e.currentTarget);
+        }}
       />
       <DownloadIcon
         className={[
