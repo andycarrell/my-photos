@@ -22,7 +22,7 @@ invariant(
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function createUser(email: string, password: string) {
-  const { user, error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
   });
@@ -37,7 +37,7 @@ export async function createUser(email: string, password: string) {
   // const profile = await getProfileByEmail(user?.email);
   // return profile;
 
-  return user?.id;
+  return data.user?.id;
 }
 
 export async function getProfileById(id: string) {
@@ -79,7 +79,7 @@ export async function getProfileByEmail(email?: string) {
 }
 
 export async function verifyLogin(email: string, password: string) {
-  const { user, error } = await supabase.auth.signIn({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -89,7 +89,7 @@ export async function verifyLogin(email: string, password: string) {
     return undefined;
   }
 
-  const profile = await getProfileByEmail(user?.email);
+  const profile = await getProfileByEmail(data.user?.email);
 
   return profile;
 }

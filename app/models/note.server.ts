@@ -25,13 +25,14 @@ export async function createNote({
   const { data, error } = await supabase
     .from("notes")
     .insert([{ title, body, profile_id: userId }])
+    .select()
     .single();
 
-  if (!error) {
-    return data;
+  if (error) {
+    return null;
   }
 
-  return null;
+  return data;
 }
 
 export async function deleteNote({
@@ -40,14 +41,14 @@ export async function deleteNote({
 }: Pick<Note, "id"> & { userId: User["id"] }) {
   const { error } = await supabase
     .from("notes")
-    .delete({ returning: "minimal" })
+    .delete()
     .match({ id, profile_id: userId });
 
-  if (!error) {
-    return {};
+  if (error) {
+    return null;
   }
 
-  return null;
+  return {};
 }
 
 export async function getNote({
@@ -61,14 +62,14 @@ export async function getNote({
     .eq("id", id)
     .single();
 
-  if (!error) {
-    return {
-      userId: data.profile_id,
-      id: data.id,
-      title: data.title,
-      body: data.body,
-    };
+  if (error) {
+    return null;
   }
 
-  return null;
+  return {
+    userId: data.profile_id,
+    id: data.id,
+    title: data.title,
+    body: data.body,
+  };
 }
