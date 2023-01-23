@@ -40,7 +40,7 @@
     "tiny-invariant": "1.2.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "1.7.0",
+    "@remix-run/dev": "1.11.1",
     "@remix-run/eslint-config": "1.7.0",
     "@remix-run/serve": "1.7.0",
     "@types/eslint": "8.4.6",
